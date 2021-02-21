@@ -60,10 +60,7 @@ namespace GameTesterClean
         public override void Update(GameTime gameTime)
         {
             if (game.NewKey(Keys.Escape))
-            {
-                client.SendMessage(MessageType.LEAVE, "disconnected " + client.ClientID);
                 game.SwicthScene(game.menuScene);
-            }
 
             player.Update(gameTime, game.keyboardState);
 
