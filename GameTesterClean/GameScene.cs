@@ -6,18 +6,18 @@ namespace GameTesterClean
     public class GameScene
     {
         private List<GameComponent> components;
-        private Game1 robotisGame;
+        private Game1 game;
 
         public void AddComponent(GameComponent gameComponent)
         {
             components.Add(gameComponent);
-            if (!(robotisGame.Components.Contains(gameComponent)))
-                robotisGame.Components.Add(gameComponent);
+            if (!(game.Components.Contains(gameComponent)))
+                game.Components.Add(gameComponent);
         }
 
-        public GameScene(Game1 robotisGame, params GameComponent[] components)
+        public GameScene(Game1 game, params GameComponent[] components)
         {
-            this.robotisGame = robotisGame;
+            this.game = game;
             this.components = new List<GameComponent>();
             foreach (GameComponent component in components)
                 AddComponent(component);
