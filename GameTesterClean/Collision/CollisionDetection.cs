@@ -55,7 +55,7 @@ namespace GameTesterClean
 				// ===== 2. Now find if the polygons *will* intersect =====
 
 				// Project the velocity on the current axis
-				float velocityProjection = axis.DotProduct(velocity);
+				float velocityProjection = (float)axis.DotProduct(velocity);
 
 				// Get the projection of polygon A during the movement
 				if (velocityProjection < 0)
@@ -114,14 +114,14 @@ namespace GameTesterClean
 		public static void ProjectPolygon(Vector axis, Polygon polygon, ref float min, ref float max)
 		{
 			// To project a point on an axis use the dot product
-			float d = axis.DotProduct(polygon.Points[0]);
+			float d = (float)axis.DotProduct(polygon.Points[0]);
 
 			min = d;
 			max = d;
 
 			for (int i = 0; i < polygon.Points.Count; i++)
 			{
-				d = polygon.Points[i].DotProduct(axis);
+				d = (float)polygon.Points[i].DotProduct(axis);
 
 				if (d < min)
 					min = d;

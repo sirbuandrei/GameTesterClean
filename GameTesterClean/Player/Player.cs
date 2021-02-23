@@ -3,8 +3,12 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text.Json;
+// using System.Text.Json;
+using System.Text;
+using System;
+using Binaron.Serializer;
 
 namespace GameTesterClean
 {
@@ -90,8 +94,8 @@ namespace GameTesterClean
 
         public void Translate(Vector t)
         {
-            position.X += t.X;
-            position.Y += t.Y;
+            position.X += (float)t.X;
+            position.Y += (float)t.Y;
 
             UpdateHitBox();
         }
@@ -122,24 +126,37 @@ namespace GameTesterClean
             orderHitbox = q;
         }
 
-        public string toPlayerInfo()
+        public string toPlayerInfo(int index)
         {
             PlayerInfo info = new PlayerInfo();
+            MemoryStream stream = new MemoryStream();
 
+            //BinaronConvert.Serialize(new Vector(position.X, position.Y), stream); stream.Position = 0;
             info.positionToSend = new Vector(position.X, position.Y);
+
+            //BinaronConvert.Serialize(velocityVector, stream); stream.Position = 0;
             info.velocityVector = velocityVector;
+
             info.ID = ID;
             info.walkingDirection = walkingDirection;
             info.currentFrame = animationManager.animation.currentFrame;
             info.nickname = nickname;
             info.characterType = characterType;
+            info.index = index;
 
-            return JsonSerializer.Serialize(info);
+            //Binary.Create(new Settings().MarkSerializable(typeof(PlayerInfo))).Write(info, stream);
+
+            BinaronConvert.Serialize(info, stream);
+            stream.Position = 0;
+
+            return new StreamReader(stream).ReadToEnd();
+            
+            //return JsonSerializer.Serialize(info);
         }
 
         public static Player fromInfo(PlayerInfo info, ContentManager content)
         {
-            Player p = new Player(new Vector2(info.positionToSend.X, info.positionToSend.Y), info.characterType, content);
+            Player p = new Player(new Vector2((float)info.positionToSend.X, (float)info.positionToSend.Y), info.characterType, content);
 
             p.ID = info.ID;
             p.velocityVector = info.velocityVector;
