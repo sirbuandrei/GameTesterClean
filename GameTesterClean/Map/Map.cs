@@ -66,6 +66,16 @@ namespace GameTesterClean
                     map.playerStart.X = float.Parse(objectGroup["object"].Attributes["x"].InnerText);
                     map.playerStart.Y = float.Parse(objectGroup["object"].Attributes["y"].InnerText);
                 }
+
+                //if(objectGroup.Attributes["name"].InnerText.Equals("Interactions"))
+                //{
+                //    foreach (XmlNode interaction in objectGroup.SelectNodes("object"))
+                //    {
+                //        Polygon p = GetCollision(interaction);
+
+
+                //    }
+                //}
             }
             // </start position>
 
@@ -80,6 +90,13 @@ namespace GameTesterClean
             clearCSV = clearCSV[0..^1];
 
             map.drawOnTop = new Layer("OnTop", map._width, map._height, clearCSV);
+
+            foreach (Layer l in map.layers)
+                for (int i = 0; i < l._height; i++)
+                    for (int j = 0; j < l._width; j++)
+                        if(l.data[i, j] != -1)
+                            if(map.tileset.tiles[l.data[i, j]].alwaysOnTop == true)
+                                map.drawOnTop.data[i, j] = l.data[i, j];
 
             return map;
         }
@@ -134,6 +151,35 @@ namespace GameTesterClean
         public Vector MapCoordToPixel(Vector coords)
         {
             return new Vector(coords.X * _tileWidth, coords.Y * _tileHeight);
+        }
+
+        private static Polygon GetCollision(XmlNode node)
+        {
+            float startX = float.Parse(node.Attributes["x"].InnerText);
+            float startY = float.Parse(node.Attributes["y"].InnerText);
+
+            foreach (XmlNode poly in node.ChildNodes)
+            {
+                if (poly.Name == "polygon")
+                {
+                    Polygon p = Polygon.fromString(poly.Attributes["points"].InnerText);
+                    p.Offset(new Vector(startX, startY));
+
+                    return p;
+                }
+                if (poly.Name == "polyline")
+                {
+                    Polygon p = Polygon.fromString(poly.Attributes["points"].InnerText, 1);
+                    p.Offset(new Vector(startX, startY));
+
+                    return p;
+                }
+            }
+
+            float w = float.Parse(node.Attributes["width"].InnerText);
+            float h = float.Parse(node.Attributes["height"].InnerText);
+
+            return Polygon.fromRect(startX, startY, w, h);
         }
 
         public void Draw(SpriteBatch spriteBatch)

@@ -5,11 +5,12 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using GPNetworkClient;
 using GPNetworkMessage;
-// using System.Text.Json;
 using Microsoft.Xna.Framework.Input;
 using System.IO;
 using System.Text;
-using Binaron.Serializer;
+using GroBuf;
+using GroBuf.DataMembersExtracters;
+//using Binaron.Serializer;
 
 namespace GameTesterClean
 {
@@ -22,6 +23,8 @@ namespace GameTesterClean
         public int index;
         Map map;
         Camera camera;
+
+        public Serializer serializer;
 
         public LevelComponent(Game1 game) : base(game)
         {
@@ -39,6 +42,8 @@ namespace GameTesterClean
             camera = new Camera(game._graphics.GraphicsDevice.Viewport);
             camera.Limits = new Rectangle(0, 0, map._width * map.tileset._tileWidth, map._height * map.tileset._tileHeight);
 
+            serializer = new Serializer(new PropertiesExtractor(), options: GroBufOptions.WriteEmptyObjects);
+
             int tries = 100;
             game.client = new UDPClient();
 
@@ -53,7 +58,7 @@ namespace GameTesterClean
             index = 0;
 
             player.ID = game.client.ClientID;
-            game.client.SendMessageExceptOne(player.toPlayerInfo(index++), player.ID);
+            game.client.SendMessageExceptOne(player.toPlayerInfo(serializer), player.ID);
 
             allPlayers.Add(player.ID, player);
 
@@ -87,9 +92,9 @@ namespace GameTesterClean
             }
 
             player.Translate(Translation);
-            
+
             player.positionToSend = new Vector(player.position.X, player.position.Y);
-            game.client.SendMessage(MessageType.ANY, player.toPlayerInfo(index++));
+            game.client.SendMessage(MessageType.ANY, player.toPlayerInfo(serializer));
 
             string message;
 
@@ -99,21 +104,19 @@ namespace GameTesterClean
 
                 try
                 {
-                    MemoryStream stream = new MemoryStream(Encoding.ASCII.GetBytes(message));
-                    stream.Position = 0;
+                    string[] bytes = message.Split(" ");
+                    byte[] serialized_player = new byte[bytes.Length];
 
-                    PlayerInfo info = BinaronConvert.Deserialize<PlayerInfo>(stream);
+                    for (int i = 0; i < bytes.Length; i++)
+                        serialized_player[i] = byte.Parse(bytes[i]);
 
-                    //info.velocityVector = BinaronConvert.Deserialize<Vector>(new MemoryStream(info.velocityVectorB));
-                    //info.positionToSend = BinaronConvert.Deserialize<Vector>(new MemoryStream(info.positionToSendB));
+                    PlayerInfo info = serializer.Deserialize<PlayerInfo>(serialized_player);
 
-                    Console.WriteLine(info.index);
-
-                    if(index - info.index < 10)
-                        allPlayers[info.ID] = Player.fromInfo(info, game.Content);
+                    allPlayers[info.ID] = Player.fromInfo(info, game.Content);
                 }
-                catch
+                catch (Exception e)
                 {
+                    Console.WriteLine("ERROR: {0}", e.Message);
                     string[] type_value = message.Split(" ");
 
                     if (type_value[0].Equals("disconnected"))
@@ -156,8 +159,11 @@ namespace GameTesterClean
 
             foreach (Player p in allPlayers.Values)
                 p.Draw(game._spriteBatch);
-            
+
             map.DrawTop(game._spriteBatch);
+
+            //foreach (Player p in allPlayers.Values)
+            //    p.DrawNickname(game._spriteBatch);
 
             game._spriteBatch.End();
 

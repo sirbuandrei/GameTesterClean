@@ -9,6 +9,8 @@ using System.Linq;
 using System.Text;
 using System;
 using Binaron.Serializer;
+using GroBuf;
+using GroBuf.DataMembersExtracters;
 
 namespace GameTesterClean
 {
@@ -38,6 +40,7 @@ namespace GameTesterClean
             this.positionToSend = new Vector(position.X, position.Y);
             this.characterType = characterType;
             font = Content.Load<SpriteFont>(@"Fonts\nicknameFont");
+
             animationDictionary = new Dictionary<string, Animation>()
             {
                 {"WalkUp", new Animation(Content.Load<Texture2D>(@"Player\" + characterType + @"\WalkUp"), 3)},
@@ -88,8 +91,13 @@ namespace GameTesterClean
         {
             animationManager.animation.texture = animationDictionary[walkingDirection].texture;
             animationManager.Draw(spriteBatch, position);
+        }
+
+        public void DrawNickname(SpriteBatch spriteBatch)
+        {
             spriteBatch.DrawString(font, nickname, new Vector2(position.X + animationManager.animation.frameWidth / 2 - font.MeasureString(nickname).X / 2,
-                                                           position.Y - font.MeasureString(nickname).Y), Color.Black);
+                                                               position.Y - font.MeasureString(nickname).Y),
+                                   Color.Black);
         }
 
         public void Translate(Vector t)
@@ -126,15 +134,12 @@ namespace GameTesterClean
             orderHitbox = q;
         }
 
-        public string toPlayerInfo(int index)
+        public string toPlayerInfo(Serializer serializer)
         {
             PlayerInfo info = new PlayerInfo();
-            MemoryStream stream = new MemoryStream();
 
-            //BinaronConvert.Serialize(new Vector(position.X, position.Y), stream); stream.Position = 0;
             info.positionToSend = new Vector(position.X, position.Y);
 
-            //BinaronConvert.Serialize(velocityVector, stream); stream.Position = 0;
             info.velocityVector = velocityVector;
 
             info.ID = ID;
@@ -142,23 +147,25 @@ namespace GameTesterClean
             info.currentFrame = animationManager.animation.currentFrame;
             info.nickname = nickname;
             info.characterType = characterType;
-            info.index = index;
 
-            //Binary.Create(new Settings().MarkSerializable(typeof(PlayerInfo))).Write(info, stream);
+            Console.WriteLine(info.characterType);
+            Console.WriteLine(characterType);
 
-            BinaronConvert.Serialize(info, stream);
-            stream.Position = 0;
+            byte[] serialized_player = serializer.Serialize(info);
 
-            return new StreamReader(stream).ReadToEnd();
-            
-            //return JsonSerializer.Serialize(info);
+            string toSend = "";
+            foreach (byte b in serialized_player) toSend += b.ToString() + ' ';
+            toSend = toSend[0..^1];
+
+            return toSend;
         }
 
         public static Player fromInfo(PlayerInfo info, ContentManager content)
         {
             Player p = new Player(new Vector2((float)info.positionToSend.X, (float)info.positionToSend.Y), info.characterType, content);
-
+            
             p.ID = info.ID;
+            
             p.velocityVector = info.velocityVector;
             p.animationManager.animation.currentFrame = info.currentFrame;
             p.walkingDirection = info.walkingDirection;

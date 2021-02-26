@@ -41,6 +41,11 @@
    </object>
   </objectgroup>
  </tile>
+ <tile id="6">
+  <properties>
+   <property name="alwaysOnTop" type="bool" value="true"/>
+  </properties>
+ </tile>
  <tile id="9">
   <objectgroup draworder="index" id="3">
    <object id="4" x="2.18182" y="8.2648">
@@ -107,11 +112,19 @@
   </objectgroup>
  </tile>
  <tile id="22">
-  <objectgroup draworder="index" id="2">
-   <object id="1" x="1" y="16.1875">
-    <polygon points="0.125,-0.125 -1.0625,-2.3125 1.8125,-7.125 2.25,-12.9375 3.5625,-14.875 5.125,-13.625 8.25,-16.125 10.875,-16.125 12.75,-10.5625 12.875,-9.25 12,-7.5 12.0625,-4.5 15,-0.1875"/>
-   </object>
-  </objectgroup>
+  <properties>
+   <property name="alwaysOnTop" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="23">
+  <properties>
+   <property name="alwaysOnTop" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="24">
+  <properties>
+   <property name="alwaysOnTop" type="bool" value="true"/>
+  </properties>
  </tile>
  <tile id="25">
   <objectgroup draworder="index" id="2">
@@ -160,11 +173,19 @@
   </objectgroup>
  </tile>
  <tile id="38">
-  <objectgroup draworder="index" id="2">
-   <object id="1" x="3.0625" y="-0.125">
-    <polygon points="-0.852921,0.0815217 -3.07813,2.125 -3.05972,8.10694 5.95972,15.1139 8.90556,15.1208 12.125,11.625 12.0353,0.109375"/>
-   </object>
-  </objectgroup>
+  <properties>
+   <property name="alwaysOnTop" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="40">
+  <properties>
+   <property name="alwaysOnTop" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="42">
+  <properties>
+   <property name="alwaysOnTop" type="bool" value="true"/>
+  </properties>
  </tile>
  <tile id="48">
   <objectgroup draworder="index" id="2">
@@ -196,6 +217,42 @@
    <object id="2" x="0" y="0" width="16" height="10.0909"/>
   </objectgroup>
  </tile>
+ <tile id="54">
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="6.45455" y="2">
+    <polygon points="0,0 -3.45455,3.36364 -3.18182,6.18182 -6.09091,8.27273 -5.63636,10.2727 -0.727273,9.63636 6.54545,9.45455 8.27273,7.90909 8.18182,3.27273 5.72727,-0.636364"/>
+   </object>
+  </objectgroup>
+ </tile>
+ <tile id="55">
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="0.363636" y="8.36364">
+    <polygon points="0,0 -0.363636,1.27273 1.63636,3.09091 11.4545,3.54545 14.9091,1.54545 15.4545,-0.818182 13.9091,-3.72727 12.2727,-5.18182 8.36364,-5.18182"/>
+   </object>
+  </objectgroup>
+ </tile>
+ <tile id="56">
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="5" y="0.272727">
+    <polygon points="0,0 -3.63636,3 -4.81818,6.81818 -4.81818,12.3636 -2.72727,14.2727 7.72727,14.6364 10.6364,12.7273 7.90909,7.18182 5.27273,6.72727 3.72727,2.18182"/>
+   </object>
+  </objectgroup>
+ </tile>
+ <tile id="58">
+  <properties>
+   <property name="drawOrderGuide" type="bool" value="true"/>
+  </properties>
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="0.363636" y="11.6364">
+    <polygon points="0,0 2.72727,2.90909 12.3636,3 15.4545,0.272727 15.4545,-5.18182 12.6364,-7 3.27273,-7.09091 -0.0909091,-5.54545"/>
+   </object>
+   <object id="3" x="0" y="7" width="16" height="9">
+    <properties>
+     <property name="drawOrderGuide" type="bool" value="true"/>
+    </properties>
+   </object>
+  </objectgroup>
+ </tile>
  <tile id="64">
   <objectgroup draworder="index" id="2">
    <object id="1" x="0" y="0" width="16" height="10"/>
@@ -224,6 +281,13 @@
  <tile id="69">
   <objectgroup draworder="index" id="2">
    <object id="1" x="0" y="0" width="16" height="9.90909"/>
+  </objectgroup>
+ </tile>
+ <tile id="70">
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="2.125" y="6.1875">
+    <polygon points="-0.9375,-1.25 -1.9375,1.9375 -2,7.375 -1,8.625 12.75,8.625 13.625,7.5625 13.625,0.75 11.5625,-2 1.5625,-1.9375"/>
+   </object>
   </objectgroup>
  </tile>
  <tile id="74">
