@@ -11,6 +11,7 @@ namespace GameTesterClean
         public Texture2D texture;
         private Bitmap textureImage;
         public List<Polygon> collisions;
+        public bool alwaysOnTop;
         public int ID;
 
         public Tile(int id, Bitmap image)
@@ -18,6 +19,7 @@ namespace GameTesterClean
             ID = id;
             collisions = new List<Polygon>();
             textureImage = image;
+            alwaysOnTop = false;
         }
 
         public void Load(GraphicsDevice graphics)

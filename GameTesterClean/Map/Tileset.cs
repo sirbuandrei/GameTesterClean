@@ -64,6 +64,11 @@ namespace GameTesterClean
                     tileImages[tileID]
                 );
 
+                if (tileNode["properties"] != null)
+                    foreach (XmlNode property in tileNode["properties"].SelectNodes("property"))
+                        if (property.Attributes["name"].InnerText == "alwaysOnTop" && property.Attributes["value"].InnerText == "true")
+                            tile.alwaysOnTop = true;
+
                 if (tileNode["objectgroup"] != null)
                 {
                     foreach (XmlNode objectNode in tileNode["objectgroup"].SelectNodes("object"))

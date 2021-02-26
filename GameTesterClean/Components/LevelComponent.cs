@@ -1,11 +1,16 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using GPNetworkClient;
 using GPNetworkMessage;
-using System.Text.Json;
 using Microsoft.Xna.Framework.Input;
+using System.IO;
+using System.Text;
+using GroBuf;
+using GroBuf.DataMembersExtracters;
+//using Binaron.Serializer;
 
 namespace GameTesterClean
 {
@@ -15,10 +20,11 @@ namespace GameTesterClean
 
         public Player player { get; set; }
         private Dictionary<int, Player> allPlayers;
-
+        public int index;
         Map map;
         Camera camera;
-        UDPClient client;
+
+        public Serializer serializer;
 
         public LevelComponent(Game1 game) : base(game)
         {
@@ -36,14 +42,23 @@ namespace GameTesterClean
             camera = new Camera(game._graphics.GraphicsDevice.Viewport);
             camera.Limits = new Rectangle(0, 0, map._width * map.tileset._tileWidth, map._height * map.tileset._tileHeight);
 
-            client = new UDPClient();
-            if (!client.Connect("79.114.16.172", 5555))
+            serializer = new Serializer(new PropertiesExtractor(), options: GroBufOptions.WriteEmptyObjects);
+
+            int tries = 100;
+            game.client = new UDPClient();
+
+            while (!game.client.Connect("79.114.16.172", 5555) && tries > 0)
             {
-                Console.WriteLine("Cannot connect to server!");
+                Thread.Sleep(100);
+                Console.WriteLine("Cannot connect to server! Retrying...");
+
+                tries--;
             }
 
-            player.ID = client.ClientID;
-            client.SendMessageExceptOne(player.toPlayerInfo(), player.ID);
+            index = 0;
+
+            player.ID = game.client.ClientID;
+            game.client.SendMessageExceptOne(player.toPlayerInfo(serializer), player.ID);
 
             allPlayers.Add(player.ID, player);
 
@@ -77,26 +92,31 @@ namespace GameTesterClean
             }
 
             player.Translate(Translation);
-            camera.Position = new Vector2(player.position.X - (game._graphics.GraphicsDevice.Viewport.Width / 2 / camera.Zoom),
-                                           player.position.Y - (game._graphics.GraphicsDevice.Viewport.Height / 2 / camera.Zoom));
 
             player.positionToSend = new Vector(player.position.X, player.position.Y);
-            client.SendMessage(MessageType.ANY, player.toPlayerInfo());
+            game.client.SendMessage(MessageType.ANY, player.toPlayerInfo(serializer));
 
             string message;
 
-            while (client.Messages.Count != 0)
+            while (game.client.Messages.Count != 0)
             {
-                message = client.Messages.Dequeue().Message;
+                message = game.client.Messages.Dequeue().Message;
 
                 try
                 {
-                    PlayerInfo info = JsonSerializer.Deserialize<PlayerInfo>(message);
+                    string[] bytes = message.Split(" ");
+                    byte[] serialized_player = new byte[bytes.Length];
+
+                    for (int i = 0; i < bytes.Length; i++)
+                        serialized_player[i] = byte.Parse(bytes[i]);
+
+                    PlayerInfo info = serializer.Deserialize<PlayerInfo>(serialized_player);
 
                     allPlayers[info.ID] = Player.fromInfo(info, game.Content);
                 }
                 catch (Exception e)
                 {
+                    Console.WriteLine("ERROR: {0}", e.Message);
                     string[] type_value = message.Split(" ");
 
                     if (type_value[0].Equals("disconnected"))
@@ -113,7 +133,7 @@ namespace GameTesterClean
                     if (p.drawOrderGuide)
                     {
                         CollisionDetection.PolygonCollisionResult result = CollisionDetection.PolygonCollision(o_player.orderHitbox, p, o_player.velocityVector);
-
+                        
                         if (result.Intersect)
                             map.drawOnTop.data[(int)tup.Item2.X, (int)tup.Item2.Y] = -1;
                         else
@@ -122,6 +142,10 @@ namespace GameTesterClean
                 }
             }
 
+            camera.Position = new Vector2(allPlayers[player.ID].position.X - (game._graphics.GraphicsDevice.Viewport.Width / 2 / camera.Zoom),
+                                          allPlayers[player.ID].position.Y - (game._graphics.GraphicsDevice.Viewport.Height / 2 / camera.Zoom));
+
+            Thread.Sleep(1);
             base.Update(gameTime);
         }
 
@@ -132,14 +156,18 @@ namespace GameTesterClean
             game._spriteBatch.Begin(transformMatrix: camera.ViewMatrix);
 
             map.Draw(game._spriteBatch);
+
             foreach (Player p in allPlayers.Values)
                 p.Draw(game._spriteBatch);
+
             map.DrawTop(game._spriteBatch);
+
+            //foreach (Player p in allPlayers.Values)
+            //    p.DrawNickname(game._spriteBatch);
 
             game._spriteBatch.End();
 
             base.Draw(gameTime);
         }
-
     }
 }

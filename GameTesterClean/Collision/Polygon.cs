@@ -47,8 +47,8 @@ namespace GameTesterClean
 
 				for (int i = 0; i < points.Count; i++)
 				{
-					totalX += points[i].X;
-					totalY += points[i].Y;
+					totalX += (float)points[i].X;
+					totalY += (float)points[i].Y;
 				}
 
 				return new Vector(totalX / (float)points.Count, totalY / (float)points.Count);
@@ -60,7 +60,7 @@ namespace GameTesterClean
 			Offset(v.X, v.Y);
 		}
 
-		public void Offset(float x, float y)
+		public void Offset(double x, double y)
 		{
 			for (int i = 0; i < points.Count; i++)
 				points[i] = new Vector(points[i].X + x, points[i].Y + y);

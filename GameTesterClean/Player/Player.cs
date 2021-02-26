@@ -3,8 +3,14 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text.Json;
+// using System.Text.Json;
+using System.Text;
+using System;
+using Binaron.Serializer;
+using GroBuf;
+using GroBuf.DataMembersExtracters;
 
 namespace GameTesterClean
 {
@@ -34,6 +40,7 @@ namespace GameTesterClean
             this.positionToSend = new Vector(position.X, position.Y);
             this.characterType = characterType;
             font = Content.Load<SpriteFont>(@"Fonts\nicknameFont");
+
             animationDictionary = new Dictionary<string, Animation>()
             {
                 {"WalkUp", new Animation(Content.Load<Texture2D>(@"Player\" + characterType + @"\WalkUp"), 3)},
@@ -84,14 +91,19 @@ namespace GameTesterClean
         {
             animationManager.animation.texture = animationDictionary[walkingDirection].texture;
             animationManager.Draw(spriteBatch, position);
+        }
+
+        public void DrawNickname(SpriteBatch spriteBatch)
+        {
             spriteBatch.DrawString(font, nickname, new Vector2(position.X + animationManager.animation.frameWidth / 2 - font.MeasureString(nickname).X / 2,
-                                                           position.Y - font.MeasureString(nickname).Y), Color.Black);
+                                                               position.Y - font.MeasureString(nickname).Y),
+                                   Color.Black);
         }
 
         public void Translate(Vector t)
         {
-            position.X += t.X;
-            position.Y += t.Y;
+            position.X += (float)t.X;
+            position.Y += (float)t.Y;
 
             UpdateHitBox();
         }
@@ -122,26 +134,38 @@ namespace GameTesterClean
             orderHitbox = q;
         }
 
-        public string toPlayerInfo()
+        public string toPlayerInfo(Serializer serializer)
         {
             PlayerInfo info = new PlayerInfo();
 
             info.positionToSend = new Vector(position.X, position.Y);
+
             info.velocityVector = velocityVector;
+
             info.ID = ID;
             info.walkingDirection = walkingDirection;
             info.currentFrame = animationManager.animation.currentFrame;
             info.nickname = nickname;
             info.characterType = characterType;
 
-            return JsonSerializer.Serialize(info);
+            Console.WriteLine(info.characterType);
+            Console.WriteLine(characterType);
+
+            byte[] serialized_player = serializer.Serialize(info);
+
+            string toSend = "";
+            foreach (byte b in serialized_player) toSend += b.ToString() + ' ';
+            toSend = toSend[0..^1];
+
+            return toSend;
         }
 
         public static Player fromInfo(PlayerInfo info, ContentManager content)
         {
-            Player p = new Player(new Vector2(info.positionToSend.X, info.positionToSend.Y), info.characterType, content);
-
+            Player p = new Player(new Vector2((float)info.positionToSend.X, (float)info.positionToSend.Y), info.characterType, content);
+            
             p.ID = info.ID;
+            
             p.velocityVector = info.velocityVector;
             p.animationManager.animation.currentFrame = info.currentFrame;
             p.walkingDirection = info.walkingDirection;

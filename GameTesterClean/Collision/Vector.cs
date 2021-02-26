@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Drawing;
+using System.Runtime.Serialization;
 
 namespace GameTesterClean
 {
 	public struct Vector
 	{
 
-		public float X { get; set; }
-		public float Y { get; set; }
+		public double X { get; set; }
+		public double Y { get; set; }
 
 		static public Vector FromPoint(Point p)
 		{
@@ -16,15 +17,16 @@ namespace GameTesterClean
 
 		static public Vector FromPoint(int x, int y)
 		{
-			return new Vector((float)x, (float)y);
+			return new Vector((double)x, (double)y);
 		}
 
-		public Vector(float x, float y)
+		public Vector(double x, double y)
 		{
 			this.X = x;
 			this.Y = y;
 		}
 
+		[IgnoreDataMember]
 		public float Magnitude
 		{
 			get { return (float)Math.Sqrt(X * X + Y * Y); }
@@ -44,12 +46,12 @@ namespace GameTesterClean
 			return new Vector(X / magnitude, Y / magnitude);
 		}
 
-		public float DotProduct(Vector vector)
+		public double DotProduct(Vector vector)
 		{
 			return this.X * vector.X + this.Y * vector.Y;
 		}
 
-		public float DistanceTo(Vector vector)
+		public double DistanceTo(Vector vector)
 		{
 			return (float)Math.Sqrt(Math.Pow(vector.X - this.X, 2) + Math.Pow(vector.Y - this.Y, 2));
 		}
@@ -61,7 +63,7 @@ namespace GameTesterClean
 
 		public static implicit operator PointF(Vector p)
 		{
-			return new PointF(p.X, p.Y);
+			return new PointF((float)p.X, (float)p.Y);
 		}
 
 		public static Vector operator +(Vector a, Vector b)

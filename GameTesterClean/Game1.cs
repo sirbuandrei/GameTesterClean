@@ -3,6 +3,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Linq;
+using GPNetworkClient;
+using GPNetworkMessage;
 
 namespace GameTesterClean
 {
@@ -19,6 +21,8 @@ namespace GameTesterClean
         public LevelComponent levelComponent;
 
         public SpriteFont menuItemsFont;
+
+        public UDPClient client;
 
         public string characterType = "BoyRed";
 
@@ -95,12 +99,18 @@ namespace GameTesterClean
 
             base.Update(gameTime);
         }
-
+        
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             base.Draw(gameTime);
+        }
+
+        protected override void OnExiting(object sender, EventArgs args)
+        {
+            client.SendMessage(MessageType.LEAVE, "disconnected " + client.ClientID);
+            base.OnExiting(sender, args);
         }
     }
 }
